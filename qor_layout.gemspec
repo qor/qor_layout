@@ -16,7 +16,4 @@ Gem::Specification.new do |s|
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
-
-  require '../shared/gemspec'
-  Gemspec.load_gemfile_default_dependencies(s)
 end
