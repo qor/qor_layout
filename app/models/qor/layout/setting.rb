@@ -96,8 +96,8 @@ module Qor
       end
 
       def settings
-        if gadget.try(:context_blk)
-          self.instance_eval &gadget.try(:context_blk)
+        if gadget.try(:block)
+          self.instance_eval &gadget.try(:block)
         else
           meta_settings
         end
@@ -105,15 +105,16 @@ module Qor
 
       def resource_attributes_for_settings
         attrs = []
-        (gadget.try(:settings) || {}).map do |key, value|
-          attr_show = !value[:hidden]
-          attrs << Qor::ResourceAttribute.new("value_attributes[#{key}]", gadget_settings[key]) if attr_show
+        gadget_settings.children.map do |child|
+          attr_show = !child.options[:hidden]
+          #FIXME
+          attrs << Qor::ResourceAttribute.new("value_attributes[#{child.name}]", gadget_settings[key]) if attr_show
         end
         attrs
       end
 
       def render_without_style
-        ::Mustache.render(gadget.try(:template).to_s, settings)
+        ::Mustache.render(gadget.first(:template).try(:value).to_s, settings)
       end
 
 			def render(edit_mode=false)
@@ -124,7 +125,7 @@ module Qor
         style_css     = new_style.map {|k,v| "#{k}: #{v}"}.join("; ")
 
         parse_content.xpath('*').first.set_attribute("qor_layout_elements", id.to_s)
-        parse_content.xpath('*').first.set_attribute("qor_layout_draggable_elements", id.to_s) if gadget.respond_to?(:floating) && gadget.floating
+        parse_content.xpath('*').first.set_attribute("qor_layout_draggable_elements", id.to_s) if gadget.options[:floating]
         parse_content.xpath('*').first.set_attribute("style", style_css)
         extra = edit_mode ? "<div for_qor_layout_elements='#{id}'><a href='/admin/layout_settings/#{id}/edit'><img src='/qor_widget/images/settings.png'/></a></div>" : ""
 
@@ -132,15 +133,11 @@ module Qor
 			end
 
       def gadget
-        Qor::Layout::Configuration.gadgets.with_indifferent_access[name]
+        Qor::Layout::Configuration.find(:gadget, name)
       end
 
       def gadget_settings
-        (gadget.try(:settings) || {}).with_indifferent_access
-      end
-
-      def gadget_children_settings
-        gadget_settings.select {|k,v| v[:type].to_s == 'gadget'}
+        gadget.first(:settings)
       end
 
       def method_missing(method_sym, *args, &block)
