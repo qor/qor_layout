@@ -3,7 +3,7 @@ module Qor
     module Action
       def self.detect_action(app)
         Qor::Layout::Configuration.find(:action).map do |action|
-          return action if action.block.safe_call(app)
+          return action if action.first(:detect).block.safe_call(app)
         end
       end
     end

@@ -30,12 +30,12 @@ module Qor
 
       def values(name, for_setting=false)
         stored_value   = (value || {}).with_indifferent_access[name]
-        gadget_setting = gadget_settings[name]
+        gadget_setting = gadget_settings.find(:meta, name)
 
         if stored_value =~ /^([\w:]+)\((\d+)\)$/
           return ($1.constantize.find_by_id($2) rescue stored_value)
-        elsif gadget_setting && (gadget_setting[:type].to_s == 'gadget')
-          gadget_name = gadget_setting[:name] || name
+        elsif gadget_setting && (gadget_setting.options[:type].to_s == 'gadget')
+          gadget_name = gadget_setting.options[:name] || name
           gadgets = children.where(:name => gadget_name)
           return (for_setting ? gadgets.map(&:settings) : gadgets)
         else
@@ -44,10 +44,9 @@ module Qor
       end
 
       def meta_settings
-        gadget_settings.inject({}) do |s, setting|
-          key   = setting[0]
-          value = values(key, true)
-          s.merge({key => value})
+        gadget_settings.children.inject({}) do |s, setting|
+          value = values(setting.name, true)
+          s.merge({setting.name => value})
         end.with_indifferent_access
       end
 
@@ -58,8 +57,10 @@ module Qor
       def value_attributes=(attrs)
         attrs       = attrs.with_indifferent_access
         value_attrs = {}
-        gadget_settings.map do |key, value|
-          if value[:type].to_s =~ /image|file|media/
+        gadget_settings.find(:meta).map do |child|
+          key = child.name
+
+          if child.options[:type].to_s =~ /image|file|media/
             if self.value && (self.value[key] =~ /^([\w:]+)\((\d+)\)$/)
               asset = $1.constantize.find_by_id($2).update_attribute(:data, attrs[key]) if attrs[key]
               value_attrs.update({key => self.value[key]})
@@ -96,8 +97,8 @@ module Qor
       end
 
       def settings
-        if gadget.try(:block)
-          self.instance_eval &gadget.try(:block)
+        if gadget.first(:context).try(:block)
+          self.instance_eval &gadget.first(:context).try(:block)
         else
           meta_settings
         end
@@ -107,8 +108,7 @@ module Qor
         attrs = []
         gadget_settings.children.map do |child|
           attr_show = !child.options[:hidden]
-          #FIXME
-          attrs << Qor::ResourceAttribute.new("value_attributes[#{child.name}]", gadget_settings[key]) if attr_show
+          attrs << Qor::ResourceAttribute.new("value_attributes[#{child.name}]", child.options) if attr_show
         end
         attrs
       end
