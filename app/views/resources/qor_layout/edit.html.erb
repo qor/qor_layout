@@ -1,0 +1,27 @@
+<% is_partent_url = (request.referer.to_s =~ Regexp.new([request.host_with_port, request.path.gsub(/^(\/\w+).*?$/) { $1 }].join(""))) %>
+<% url = resource_path(@resource, :redirect_to => is_partent_url ? request.path : request.referer) -%>
+<%= semantic_form_for(@resource, :url => url, :html => {:multipart => true}) do |f| %>
+  <div class="mainTitle">
+    <%= render_with_fallback_themes "page_header", :page_title_tkey => "cms_admin.Editing %s" % @resource_title_name  %>
+    <% if has_permission(:update) %>
+      <div class="formSubmit sticky">
+        <%= render_with_fallback_themes "save_button", :submit_text => rt("Update") %>
+      </div>
+      <%= render_with_fallback_themes "publish_hint" %>
+      <script type="text/javascript" charset="utf-8">
+        $('.sticky').make_sticky();
+      </script>
+    <% end %>
+  </div>
+
+  <%= render_with_fallback_themes "all_error_messages" %>
+  <%= render_with_fallback_themes "form", :form => f, :attributes => @resource.resource_attributes_for_settings %>
+
+  <%= render_with_fallback_themes "after_form", :form => f %>
+
+  <% if has_permission(:update) %>
+    <div class="bottom-buttons clearfix">
+      <%= render_with_fallback_themes "save_button", :submit_text => rt("Update") %>
+    </div>
+  <% end %>
+<% end %>

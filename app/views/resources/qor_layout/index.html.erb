@@ -1,0 +1,35 @@
+<%= render_with_fallback_themes "screen_option" if @screen_option_key %>
+<div class="clear"></div>
+<div class="mainTitle">
+  <%= render_with_fallback_themes "page_header" %>
+
+  <%= render_with_fallback_themes "filters" %>
+  <%= render_with_fallback_themes "search" if @resource_config.attributes(:search).size > 0 %>
+</div>
+
+<%= render_with_fallback_themes "above_table" %>
+
+<div class="mainContent">
+<%= semantic_form_for(@resource_class.new, :url => bulk_resources_path(@resource_name, request_query_hash), :html => {:method => :put, :multipart => true}) do |f| %>
+
+  <%= render_with_fallback_themes "operations", :f => f %>
+
+  <% attrs = index_list_attributes %>
+  <% if attrs.size > 0 %>
+    <div class="mainTable <%= @resource_class.model_name.collection %>_table">
+      <%= render_with_fallback_themes "pagination", :style => "tableHead" %>
+      <%= render_with_fallback_themes "table", :attrs => attrs %>
+      <%= render_with_fallback_themes "pagination", :style => "tableHead tableBottom" %>
+    </div>
+  <% end %>
+
+<% end %>
+</div>
+
+<% if resource_sortable? %>
+<script type="text/javascript">
+  $(function(){
+    $(".tableList tbody").make_table_sortable('<%= resources_path %>/update_positions');
+  })
+</script>
+<% end %>

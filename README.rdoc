@@ -1,0 +1,29 @@
+= Layout
+
+  Easily to make your own layout.
+
+== Architecture
+  QLayout::Configuration
+  QLayout::Action
+    = detect_action(app)
+  QLayout::Layout
+    name
+    action_name
+
+    - render -> settings.render
+    = detect_layout(name, app)
+
+  QLayout::Setting settings[] { image, text, link }
+    name
+    parent_id
+    layout_id
+    value {image: QLayout::Asset(11), text: text, link: google.com}
+
+    - children
+    - render
+
+  QLayout::Asset
+    data
+
+== Author
+  Jinzhu - wosmvp@gmail.com
