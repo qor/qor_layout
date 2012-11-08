@@ -17,5 +17,5 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  s.add_dependency "qor_dsl"
+  s.add_dependency "qor_dsl", '>= 0.3.0'
 end

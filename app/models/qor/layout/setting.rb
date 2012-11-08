@@ -30,7 +30,7 @@ module Qor
 
       def values(name, for_setting=false)
         stored_value   = (value || {}).with_indifferent_access[name]
-        gadget_setting = gadget_settings.find(:meta, name)
+        gadget_setting = gadget_settings.first(:meta, name)
 
         if stored_value =~ /^([\w:]+)\((\d+)\)$/
           return ($1.constantize.find_by_id($2) rescue stored_value)
