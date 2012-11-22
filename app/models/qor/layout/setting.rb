@@ -34,7 +34,7 @@ module Qor
 
         if stored_value =~ /^([\w:]+)\((\d+)\)$/
           return ($1.constantize.find_by_id($2) rescue stored_value)
-        elsif gadget_setting && (gadget_setting.options[:type].to_s == 'gadget')
+        elsif gadget_setting
           gadget_name = gadget_setting.options[:name] || name
           gadgets = children.where(:name => gadget_name)
           return (for_setting ? gadgets.map(&:settings) : gadgets)
@@ -98,7 +98,7 @@ module Qor
 
       def settings
         if gadget.first(:context).try(:block)
-          self.instance_eval &gadget.first(:context).try(:block)
+          self.instance_eval &(gadget.first(:context).try(:block))
         else
           meta_settings
         end
@@ -133,7 +133,7 @@ module Qor
 			end
 
       def gadget
-        Qor::Layout::Configuration.find(:gadget, name)
+        Qor::Layout::Configuration.first(:gadget, name)
       end
 
       def gadget_settings
