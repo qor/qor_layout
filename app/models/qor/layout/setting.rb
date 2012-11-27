@@ -34,7 +34,7 @@ module Qor
 
         if stored_value =~ /^([\w:]+)\((\d+)\)$/
           return ($1.constantize.find_by_id($2) rescue stored_value)
-        elsif gadget_setting
+        elsif gadget_setting && (gadget_setting.options[:type].to_s == 'gadget')
           gadget_name = gadget_setting.options[:name] || name
           gadgets = children.where(:name => gadget_name)
           return (for_setting ? gadgets.map(&:settings) : gadgets)

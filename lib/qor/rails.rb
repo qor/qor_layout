@@ -1,3 +1,5 @@
+require 'rails'
+
 module Qor
   module Layout
     class Engine < ::Rails::Engine

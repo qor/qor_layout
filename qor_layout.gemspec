@@ -18,4 +18,6 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_dependency "qor_dsl", '>= 0.3.0'
+  s.add_dependency "rails", '>= 0.3.0'
+  s.add_development_dependency "sqlite3"
 end
